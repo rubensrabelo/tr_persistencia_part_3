@@ -62,9 +62,8 @@ async def update(collaborator_id: str,
 
 
 @router.delete("/{collaborator_id}",
-               response_model=Collaborator,
                status_code=status.HTTP_204_NO_CONTENT)
-async def delete(collaborator_id: str) -> dict:
+async def delete(collaborator_id: str) -> None:
     collaborator = await engine.find_one(
         Collaborator, Collaborator.id == ObjectId(collaborator_id)
         )
@@ -72,4 +71,4 @@ async def delete(collaborator_id: str) -> dict:
         raise HTTPException(status=status.HTTP_404_NOT_FOUND,
                             detail="Collaborator not found.")
     await engine.delete(collaborator)
-    return {"message": "Collaborator deleted."}
+    return
