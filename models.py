@@ -1,4 +1,4 @@
-from odmantic import Model, EmbeddedModel, Field
+from odmantic import Model, EmbeddedModel
 from bson import ObjectId
 from enum import Enum
 from datetime import datetime, timezone
@@ -6,7 +6,7 @@ from datetime import datetime, timezone
 
 class Collaborator(Model):
     name: str
-    email: str = Field(unique=True)
+    email: str
     function: str
 
 
