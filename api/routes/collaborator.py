@@ -55,7 +55,7 @@ async def update(collaborator_id: str,
     if not collaborator_id:
         raise HTTPException(status=status.HTTP_404_NOT_FOUND,
                             detail="Collaborator not found.")
-    for key, value in collaborator_data.items():
+    for key, value in collaborator_data.model_dump(exclude_unset=True).items():
         setattr(collaborator, key, value)
     await engine.save(collaborator)
     return collaborator
