@@ -1,8 +1,8 @@
 from fastapi import APIRouter, HTTPException, Query
-from database import get_engine
 from odmantic import ObjectId
 from starlette import status
 
+from database import get_engine
 from models import Collaborator
 
 router = APIRouter()

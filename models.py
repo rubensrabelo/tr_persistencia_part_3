@@ -2,7 +2,6 @@ from odmantic import Model, EmbeddedModel
 from bson import ObjectId
 from enum import Enum
 from datetime import datetime, timezone
-from typing import Optional
 
 
 class Collaborator(Model):
@@ -23,7 +22,7 @@ class Task(EmbeddedModel):
     create_at: datetime = datetime.now(timezone.utc)
     update_at: datetime = datetime.now(timezone.utc)
     status: StatusEnum = StatusEnum.NOT_DONE
-    collaborator: Optional[list[ObjectId]] = None
+    collaborator: list[ObjectId] = []
 
 
 class Project(Model):
