@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException, Query
-from odmantic import ObjectId, DuplicateKeyError
+from odmantic import ObjectId
 from starlette import status
 
 from database import get_engine
@@ -40,14 +40,16 @@ async def find_by_id(collaborator_id: str) -> Collaborator:
              response_model=Collaborator,
              status_code=status.HTTP_201_CREATED)
 async def create(collaborator: Collaborator) -> Collaborator:
-    try:
-        await engine.save(collaborator)
-        return collaborator
-    except DuplicateKeyError:
+    existing_collaborator = await engine.find_one(
+        Collaborator, Collaborator.email == collaborator.email
+    )
+    if existing_collaborator:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Collaborator with this email already exists."
         )
+    await engine.save(collaborator)
+    return collaborator
 
 
 @router.put("/{collaborator_id}",
