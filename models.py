@@ -1,4 +1,4 @@
-from odmantic import Model, EmbeddedModel, Field, Index
+from odmantic import Model, EmbeddedModel, Field
 from bson import ObjectId
 from enum import Enum
 from datetime import datetime, timezone
