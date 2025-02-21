@@ -18,11 +18,13 @@ async def find_by_id(
     task_id: str
 ) -> Task:
     project = await engine.find_one(Project, Project.id == ObjectId(project_id))
-    task = [
-        task
-        if Task.id == ObjectId(task_id) else None
-        for task in project.tasks
-        ]
+    task = next(
+        (
+            task for task in project.tasks
+            if task.id == ObjectId(task_id)
+        ),
+        None
+    )
     if not task:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
