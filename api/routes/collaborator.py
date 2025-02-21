@@ -60,7 +60,7 @@ async def update(collaborator_id: str,
     collaborator = await engine.find_one(
         Collaborator, Collaborator.id == ObjectId(collaborator_id)
         )
-    if not collaborator_id:
+    if not collaborator:
         raise HTTPException(status=status.HTTP_404_NOT_FOUND,
                             detail="Collaborator not found.")
     for key, value in collaborator_data.model_dump(exclude_unset=True).items():
