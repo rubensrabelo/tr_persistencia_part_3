@@ -8,4 +8,5 @@ dependencies = [
     "fastapi[standard]>=0.115.8",
     "motor[srv]>=3.7.0",
     "odmantic>=1.0.2",
+    "pyproject-toml>=0.1.0",
 ]
