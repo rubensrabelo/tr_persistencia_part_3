@@ -52,9 +52,9 @@ async def create(collaborator: Collaborator) -> Collaborator:
     return collaborator
 
 
-@router.post("/{collaborator_id}/{project_id}/{task_id}",
-             response_model=Task,
-             status_code=status.HTTP_200_OK)
+@router.get("/{collaborator_id}/{project_id}/{task_id}",
+            response_model=Task,
+            status_code=status.HTTP_200_OK)
 async def add_collaborator_in_task(
     collaborator_id: str,
     project_id: str,
@@ -89,7 +89,7 @@ async def add_collaborator_in_task(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Collaborator not found.")
     if collaborator.id not in [c.id for c in task.collaborators]:
-        task.collaborators.append(collaborator)
+        task.collaborators.append(collaborator.id)
     else:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
