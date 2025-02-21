@@ -36,22 +36,6 @@ async def find_by_id(collaborator_id: str) -> Collaborator:
     return collaborator
 
 
-@router.post("/",
-             response_model=Collaborator,
-             status_code=status.HTTP_201_CREATED)
-async def create(collaborator: Collaborator) -> Collaborator:
-    existing_collaborator = await engine.find_one(
-        Collaborator, Collaborator.email == collaborator.email
-    )
-    if existing_collaborator:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Collaborator with this email already exists."
-        )
-    await engine.save(collaborator)
-    return collaborator
-
-
 @router.get("/{collaborator_id}/{project_id}/{task_id}",
             response_model=Task,
             status_code=status.HTTP_200_OK)
@@ -97,6 +81,22 @@ async def add_collaborator_in_task(
         )
     await engine.save(project)
     return task
+
+
+@router.post("/",
+             response_model=Collaborator,
+             status_code=status.HTTP_201_CREATED)
+async def create(collaborator: Collaborator) -> Collaborator:
+    existing_collaborator = await engine.find_one(
+        Collaborator, Collaborator.email == collaborator.email
+    )
+    if existing_collaborator:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Collaborator with this email already exists."
+        )
+    await engine.save(collaborator)
+    return collaborator
 
 
 @router.put("/{collaborator_id}",
