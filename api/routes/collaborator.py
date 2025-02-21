@@ -3,7 +3,7 @@ from odmantic import ObjectId
 from starlette import status
 
 from database import get_engine
-from models import Collaborator
+from models import Collaborator, Project, Task
 
 router = APIRouter()
 
@@ -34,6 +34,46 @@ async def find_by_id(collaborator_id: str) -> Collaborator:
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Collaborator not found.")
     return collaborator
+
+
+@router.get("/{collaborator_id}/{project_id}/{task_id}",
+            response_model=Task,
+            status_code=status.HTTP_200_OK)
+async def add_collaborator_in_task(
+    collaborator_id: str,
+    project_id: str,
+    task_id: str
+) -> Task:
+    project = await engine.find_one(
+        Project,
+        Project.id == ObjectId(project_id)
+    )
+    if not project:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Project not found."
+            )
+    task = next(
+        (
+            task for task in project.tasks
+            if task.id == ObjectId(task_id)
+        ),
+        None
+    )
+    if not task:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Task not found."
+            )
+    collaborator = await engine.find_one(
+        Collaborator, Collaborator.id == ObjectId(collaborator_id)
+    )
+    if not collaborator:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Collaborator not found.")
+    task.collaborators.apppend(collaborator)
+    return task
 
 
 @router.post("/",
