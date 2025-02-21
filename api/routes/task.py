@@ -57,7 +57,7 @@ async def create(
 async def update(
     project_id: str,
     task_id: str,
-    task_data: str
+    task_data: Task
 ):
     project = await engine.find_one(
         Project, Project.id == ObjectId(project_id)
