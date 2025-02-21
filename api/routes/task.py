@@ -21,6 +21,11 @@ async def find_by_id(
         Project,
         Project.id == ObjectId(project_id)
         )
+    if not project:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Project not found."
+            )
     task = next(
         (
             task for task in project.tasks
