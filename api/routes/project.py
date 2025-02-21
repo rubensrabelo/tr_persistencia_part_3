@@ -47,7 +47,7 @@ async def create(project: Project) -> Project:
 @router.put("/{project_id}",
             response_model=Project,
             status_code=status.HTTP_200_OK)
-async def update(project_id: int,
+async def update(project_id: str,
                  project_data: Project) -> Project:
     project = await engine.find_one(
         Project, Project.id == ObjectId(project_id)
@@ -63,7 +63,7 @@ async def update(project_id: int,
 
 @router.delete("/{project_id}",
                status_code=status.HTTP_204_NO_CONTENT)
-async def delete(project_id: int) -> None:
+async def delete(project_id: str) -> None:
     project = await engine.find_one(
         Project, Project.id == ObjectId(project_id)
     )
