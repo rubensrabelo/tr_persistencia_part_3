@@ -1,6 +1,7 @@
 from fastapi import APIRouter, HTTPException, Query
 from odmantic import ObjectId
 from starlette import status
+from datetime import datetime, timezone
 
 from database import get_engine
 from models import Project
@@ -57,6 +58,7 @@ async def update(project_id: str,
                             detail="Project not found")
     for key, value in project_data.model_dump(exclude_unset=True).items():
         setattr(project, key, value)
+    project.updated_at = datetime.now(timezone.utc)
     await engine.save(project)
     return project
 

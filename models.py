@@ -1,6 +1,7 @@
 from odmantic import Model, EmbeddedModel
 from bson import ObjectId
 from enum import Enum
+from typing import Optional
 from datetime import datetime, timezone
 
 
@@ -17,10 +18,11 @@ class StatusEnum(str, Enum):
 
 
 class Task(EmbeddedModel):
+    id: Optional[int] = None
     name: str
     description: str
-    create_at: datetime = datetime.now(timezone.utc)
-    update_at: datetime = datetime.now(timezone.utc)
+    created_at: datetime = datetime.now(timezone.utc)
+    updated_at: datetime = datetime.now(timezone.utc)
     status: StatusEnum = StatusEnum.NOT_DONE
     collaborators: list[ObjectId] = []
 
@@ -28,7 +30,7 @@ class Task(EmbeddedModel):
 class Project(Model):
     name: str
     description: str
-    create_at: datetime = datetime.now(timezone.utc)
-    update_at: datetime = datetime.now(timezone.utc)
+    created_at: datetime = datetime.now(timezone.utc)
+    updated_at: datetime = datetime.now(timezone.utc)
     status: StatusEnum = StatusEnum.NOT_DONE
     tasks: list[Task] = []
