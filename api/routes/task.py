@@ -17,12 +17,22 @@ async def find_by_id(
     project_id: str,
     task_id: str
 ) -> Task:
-    project = await engine(Project, Project.id == ObjectId(project_id))
-    task = [
-        task
-        if Task.id == ObjectId(task_id) else None
-        for task in project.tasks
-        ]
+    project = await engine.find_one(
+        Project,
+        Project.id == ObjectId(project_id)
+        )
+    if not project:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Project not found."
+            )
+    task = next(
+        (
+            task for task in project.tasks
+            if task.id == ObjectId(task_id)
+        ),
+        None
+    )
     if not task:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -55,7 +65,7 @@ async def create(
 async def update(
     project_id: str,
     task_id: str,
-    task_data: str
+    task_data: Task
 ):
     project = await engine.find_one(
         Project, Project.id == ObjectId(project_id)
@@ -93,7 +103,7 @@ async def delete(
     project.tasks = [
         task
         for task in project.tasks
-        if ObjectId(task.id) != task_id
+        if task.id != ObjectId(task_id)
     ]
     await engine.save(project)
 

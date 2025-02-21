@@ -3,7 +3,7 @@ from odmantic import ObjectId
 from starlette import status
 
 from database import get_engine
-from models import Collaborator
+from models import Collaborator, Project, Task
 
 router = APIRouter()
 
@@ -52,6 +52,53 @@ async def create(collaborator: Collaborator) -> Collaborator:
     return collaborator
 
 
+@router.post("/{collaborator_id}/{project_id}/{task_id}",
+             response_model=Task,
+             status_code=status.HTTP_200_OK)
+async def add_collaborator_in_task(
+    collaborator_id: str,
+    project_id: str,
+    task_id: str
+) -> Task:
+    project = await engine.find_one(
+        Project,
+        Project.id == ObjectId(project_id)
+    )
+    if not project:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Project not found."
+            )
+    task = next(
+        (
+            task for task in project.tasks
+            if task.id == ObjectId(task_id)
+        ),
+        None
+    )
+    if not task:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Task not found."
+            )
+    collaborator = await engine.find_one(
+        Collaborator, Collaborator.id == ObjectId(collaborator_id)
+    )
+    if not collaborator:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Collaborator not found.")
+    if collaborator.id not in [c.id for c in task.collaborators]:
+        task.collaborators.append(collaborator)
+    else:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Collaborator already associated with this task"
+        )
+    await engine.save(project)
+    return task
+
+
 @router.put("/{collaborator_id}",
             response_model=Collaborator,
             status_code=status.HTTP_200_OK)
@@ -60,7 +107,7 @@ async def update(collaborator_id: str,
     collaborator = await engine.find_one(
         Collaborator, Collaborator.id == ObjectId(collaborator_id)
         )
-    if not collaborator_id:
+    if not collaborator:
         raise HTTPException(status=status.HTTP_404_NOT_FOUND,
                             detail="Collaborator not found.")
     for key, value in collaborator_data.model_dump(exclude_unset=True).items():

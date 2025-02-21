@@ -22,7 +22,7 @@ class Task(EmbeddedModel):
     create_at: datetime = datetime.now(timezone.utc)
     update_at: datetime = datetime.now(timezone.utc)
     status: StatusEnum = StatusEnum.NOT_DONE
-    collaborator: list[ObjectId] = []
+    collaborators: list[ObjectId] = []
 
 
 class Project(Model):
