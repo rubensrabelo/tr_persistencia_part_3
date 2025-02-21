@@ -58,7 +58,7 @@ async def update(project_id: str,
                             detail="Project not found")
     for key, value in project_data.model_dump(exclude_unset=True).items():
         setattr(project, key, value)
-    project.update_at = datetime.now(timezone.utc)
+    project.updated_at = datetime.now(timezone.utc)
     await engine.save(project)
     return project
 
