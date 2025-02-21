@@ -1,6 +1,7 @@
 from fastapi import APIRouter, HTTPException
 from odmantic import ObjectId
 from starlette import status
+from datetime import datetime, timezone
 
 from database import get_engine
 from models import Project, Task
@@ -75,6 +76,7 @@ async def update(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Project not found"
         )
+    task_data.update_at = datetime.now(timezone.utc)
     for task in project.tasks:
         if task.id == ObjectId(task_id):
             for key, value in task_data.model_dump(exclude_unset=True).items():
