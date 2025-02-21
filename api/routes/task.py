@@ -11,12 +11,12 @@ router = APIRouter()
 engine = get_engine()
 
 
-@router.get("/{project_id}/{task_id}",
+@router.get("/{project_id}/{task_position}",
             response_model=Task,
             status_code=status.HTTP_200_OK)
 async def find_by_id(
     project_id: str,
-    task_id: str
+    task_position: int
 ) -> Task:
     project = await engine.find_one(
         Project,
@@ -27,19 +27,12 @@ async def find_by_id(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Project not found."
             )
-    task = next(
-        (
-            task for task in project.tasks
-            if task.id == ObjectId(task_id)
-        ),
-        None
-    )
-    if not task:
+    if task_position < 0 or task_position >= len(project.tasks):
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Task not found."
             )
-    return task
+    return project.tasks[task_position]
 
 
 @router.post("/{project_id}",
@@ -60,12 +53,12 @@ async def create(
     return project
 
 
-@router.put("/{project_id}/{task_id}",
+@router.put("/{project_id}/{task_position}",
             response_model=Project,
             status_code=status.HTTP_200_OK)
 async def update(
     project_id: str,
-    task_id: str,
+    task_position: int,
     task_data: Task
 ):
     project = await engine.find_one(
@@ -76,21 +69,23 @@ async def update(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Project not found"
         )
-    task_data.update_at = datetime.now(timezone.utc)
-    for task in project.tasks:
-        if task.id == ObjectId(task_id):
-            for key, value in task_data.model_dump(exclude_unset=True).items():
-                setattr(task, key, value)
-            break
+    if task_position < 0 or task_position >= len(project.tasks):
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Task not found."
+        )
+    task_data.updated_at = datetime.now(timezone.utc)
+    for key, value in task_data.model_dump(exclude_unset=True).items():
+        setattr(project.tasks[task_position], key, value)
     await engine.save(project)
     return project
 
 
-@router.delete("/{project_id}/{task_id}",
+@router.delete("/{project_id}/{task_position}",
                status_code=status.HTTP_204_NO_CONTENT)
 async def delete(
     project_id: str,
-    task_id: str
+    task_position: int
 ) -> None:
     project = await engine.find_one(
         Project,
@@ -101,12 +96,11 @@ async def delete(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Project not found"
         )
-
-    project.tasks = [
-        task
-        for task in project.tasks
-        if task.id != ObjectId(task_id)
-    ]
+    if task_position < 0 or task_position >= len(project.tasks):
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Task not found."
+        )
+    project.tasks.pop(task_position)
     await engine.save(project)
-
     return
