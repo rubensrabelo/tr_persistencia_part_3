@@ -42,7 +42,7 @@ async def find_by_id(collaborator_id: str) -> Collaborator:
 async def add_collaborator_in_task(
     collaborator_id: str,
     project_id: str,
-    task_id: str
+    task_id: int
 ) -> Task:
     project = await engine.find_one(
         Project,
@@ -56,7 +56,7 @@ async def add_collaborator_in_task(
     task = next(
         (
             task for task in project.tasks
-            if task.id == ObjectId(task_id)
+            if task.id == task_id
         ),
         None
     )
