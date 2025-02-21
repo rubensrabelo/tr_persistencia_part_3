@@ -95,7 +95,7 @@ async def delete(
     project.tasks = [
         task
         for task in project.tasks
-        if ObjectId(task.id) != task_id
+        if task.id != ObjectId(task_id)
     ]
     await engine.save(project)
 
