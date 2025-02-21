@@ -11,12 +11,12 @@ router = APIRouter()
 engine = get_engine()
 
 
-@router.get("/{project_id}/{task_id}",
+@router.get("/{task_id}/project/{project_id}",
             response_model=Task,
             status_code=status.HTTP_200_OK)
 async def find_by_id(
-    project_id: str,
-    task_id: int
+    task_id: str,
+    project_id: str
 ) -> Task:
     project = await engine.find_one(
         Project,
@@ -30,7 +30,7 @@ async def find_by_id(
     task = next(
         (
             task for task in project.tasks
-            if task.id == task_id
+            if task.id == ObjectId(task_id)
         ),
         None
     )
@@ -42,7 +42,7 @@ async def find_by_id(
     return task
 
 
-@router.post("/{project_id}",
+@router.post("/project/{project_id}",
              response_model=Project,
              status_code=status.HTTP_201_CREATED)
 async def create(
@@ -60,12 +60,12 @@ async def create(
     return project
 
 
-@router.put("/{project_id}/{task_position}",
+@router.put("/{task_id}/project/{project_id}",
             response_model=Project,
             status_code=status.HTTP_200_OK)
 async def update(
+    task_id: str,
     project_id: str,
-    task_id: int,
     task_data: Task
 ):
     project = await engine.find_one(
@@ -76,7 +76,9 @@ async def update(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Project not found"
         )
-    task = next((task for task in project.tasks if task.id == task_id), None)
+    task = next(
+        (task for task in project.tasks if task.id == ObjectId(task_id)), None
+        )
     if not task:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -89,11 +91,11 @@ async def update(
     return project
 
 
-@router.delete("/{project_id}/{task_position}",
+@router.delete("/{task_id}/project/{project_id}",
                status_code=status.HTTP_204_NO_CONTENT)
 async def delete(
-    project_id: str,
-    task_id: int
+    task_id: str,
+    project_id: str
 ) -> None:
     project = await engine.find_one(
         Project,
@@ -104,6 +106,10 @@ async def delete(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Project not found"
         )
-    project.tasks = [task for task in project.tasks if task.id != task_id]
+    project.tasks = [
+        task
+        for task in project.tasks
+        if task.id != ObjectId(task_id)
+    ]
     await engine.save(project)
     return
