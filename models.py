@@ -1,6 +1,7 @@
 from odmantic import Model, EmbeddedModel
 from bson import ObjectId
 from enum import Enum
+from typing import Optional
 from datetime import datetime, timezone
 
 
@@ -17,6 +18,7 @@ class StatusEnum(str, Enum):
 
 
 class Task(EmbeddedModel):
+    id: Optional[int] = None
     name: str
     description: str
     created_at: datetime = datetime.now(timezone.utc)
