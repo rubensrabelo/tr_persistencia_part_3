@@ -17,7 +17,10 @@ async def find_by_id(
     project_id: str,
     task_id: str
 ) -> Task:
-    project = await engine.find_one(Project, Project.id == ObjectId(project_id))
+    project = await engine.find_one(
+        Project,
+        Project.id == ObjectId(project_id)
+        )
     task = next(
         (
             task for task in project.tasks
