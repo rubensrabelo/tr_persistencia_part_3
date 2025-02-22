@@ -22,6 +22,28 @@ async def find_all(
     return projects
 
 
+@router.get("/search",
+            response_model=list[Project],
+            status_code=status.HTTP_200_OK)
+async def get_project_by_name(
+        name: str,
+        skip: int = Query(default=0, ge=0),
+        limit: int = Query(default=5, le=100)
+) -> list[Project]:
+    projects = await engine.find(
+        Project,
+        {"name": {"$regex": f"{name}", "$options": "i"}},
+        skip=skip,
+        limit=limit
+    )
+    if not projects:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Project not found."
+        )
+    return projects
+
+
 @router.get("/{project_id}",
             response_model=Project,
             status_code=status.HTTP_200_OK)
