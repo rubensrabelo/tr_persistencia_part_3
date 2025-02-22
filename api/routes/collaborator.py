@@ -21,6 +21,27 @@ async def find_all(
     return collaborators
 
 
+@router.get("/search",
+            response_model=list[Collaborator],
+            status_code=status.HTTP_200_OK)
+async def get_collaborator_by_email(
+    email: str,
+    skip: int = Query(default=0, ge=0),
+    limit: int = Query(default=5, le=100)
+) -> list[Collaborator]:
+    collaborators = await engine.find(
+        Collaborator,
+        {"email": {"$regex": f"{email}", "$options": "i"}},
+        skip=skip,
+        limit=limit
+    )
+    if not collaborators:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Collaborator not found.")
+    return collaborators
+
+
 @router.get("/{collaborator_id}",
             response_model=Collaborator,
             status_code=status.HTTP_200_OK)
