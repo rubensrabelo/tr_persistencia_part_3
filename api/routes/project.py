@@ -22,7 +22,7 @@ async def find_all(
         Project,
         skip=skip,
         limit=limit,
-        sort=Project.name
+        sort=Project.created_at
         )
     return projects
 
@@ -40,7 +40,7 @@ async def find_project_by_name(
         {"name": {"$regex": f"{name}", "$options": "i"}},
         skip=skip,
         limit=limit,
-        sort=Project.name
+        sort=Project.created_at
     )
     if not projects:
         raise HTTPException(
