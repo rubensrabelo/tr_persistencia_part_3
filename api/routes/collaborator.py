@@ -68,7 +68,7 @@ async def find_collaborator_by_email(
     if not collaborators:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Collaborator not found.")
+            detail="Collaborators not found.")
     return collaborators
 
 
