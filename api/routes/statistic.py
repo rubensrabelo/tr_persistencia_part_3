@@ -36,9 +36,10 @@ async def total_tasks_by_project():
     ]
 
     results = await collection.aggregate(pipeline).to_list(length=None)
-    
+
     results = [
         {
+            "_id": str(result["_id"]),
             "project_name": result["project_name"],
             "total_tasks": result["total_tasks"]
         }
