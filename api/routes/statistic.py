@@ -9,10 +9,10 @@ router = APIRouter()
 engine = get_engine()
 
 
-@router.get("/count/total/project",
+@router.get("/total/project",
             response_model=dict,
             status_code=status.HTTP_200_OK)
-async def count_projects() -> dict:
+async def total_projects() -> dict:
     total_projects = await engine.count(Project)
     return {
         "total projects": total_projects
