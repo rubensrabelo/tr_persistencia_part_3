@@ -50,6 +50,39 @@ async def total_tasks_by_project() -> dict:
     return results
 
 
+@router.get("/total/collaborators/by/task",
+            response_model=list[dict],
+            status_code=status.HTTP_200_OK)
+async def total_collaborators_by_task() -> list[dict]:
+    collection = engine.get_collection(Project)
+
+    pipeline = [
+        {
+            "$unwind": "$tasks"
+        },
+        {
+            "$project": {
+                "_id": 0,
+                "task_id": {"$toString": "$tasks.id"},
+                "task_name": "$tasks.name",
+                "total_collaborators": {
+                    "$size": {
+                        "$ifNull": ["$tasks.collaborators", []]
+                    }
+                }
+            }
+        },
+        {
+            "$sort": {
+                "total_collaborators": -1
+            }
+        }
+    ]
+
+    results = await collection.aggregate(pipeline).to_list(length=None)
+    return results
+
+
 @router.get("/total/tasks/collaborator",
             response_model=list[dict],
             status_code=status.HTTP_200_OK)
