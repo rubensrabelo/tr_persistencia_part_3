@@ -1,4 +1,5 @@
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, HTTPException, Query
+from bson import ObjectId
 from starlette import status
 from database import get_engine
 from models import Project
@@ -47,10 +48,11 @@ async def total_tasks_by_project(
     return results
 
 
-@router.get("/total/collaborators/by/task",
+@router.get("/total/collaborators/by/task/{project_id}",
             response_model=list[dict],
             status_code=status.HTTP_200_OK)
 async def total_collaborators_by_task(
+    project_id: str,
     min_collaborators: int = Query(0, alias="min"),
     max_collaborators: int = Query(None, alias="max"),
     limit: int = Query(10),
@@ -58,7 +60,17 @@ async def total_collaborators_by_task(
 ) -> list[dict]:
     collection = engine.get_collection(Project)
 
+    project = await engine.find_one(
+        Project, Project.id == ObjectId(project_id)
+        )
+    if not project:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Project not found."
+        )
+
     pipeline = [
+        {"$match": {"_id": ObjectId(project_id)}},
         {"$unwind": "$tasks"},
         {"$project": {
             "_id": 0,
@@ -66,7 +78,7 @@ async def total_collaborators_by_task(
             "task_name": "$tasks.name",
             "total_collaborators": {
                 "$size": {"$ifNull": ["$tasks.collaborators", []]}
-                }
+            }
         }},
         {"$match": {
             "total_collaborators": {
@@ -74,7 +86,7 @@ async def total_collaborators_by_task(
                 **({
                     "$lte": max_collaborators}
                     if max_collaborators is not None else {})
-                    }
+            }
         }},
         {"$sort": {"total_collaborators": -1}},
         {"$skip": skip},
