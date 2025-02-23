@@ -17,6 +17,16 @@ async def find_all(
     skip: int = Query(default=0, ge=0),
     limit: int = Query(default=5, le=100)
 ) -> list[Collaborator]:
+    """
+    Retorna uma lista de colaboradores.
+
+    Args:
+        skip (int): Número de registros a pular para paginação.
+        limit (int): Número máximo de registros a retornar.
+
+    Returns:
+        list[Collaborator]: Lista de colaboradores cadastrados.
+    """
     collaborators = await engine.find(
         Collaborator,
         skip=skip,
@@ -34,6 +44,20 @@ async def find_collaborator_by_email(
     skip: int = Query(default=0, ge=0),
     limit: int = Query(default=5, le=100)
 ) -> list[Collaborator]:
+    """
+    Busca colaboradores pelo email.
+
+    Args:
+        email (str): Email do colaborador (busca parcial, case-insensitive).
+        skip (int): Número de registros a pular para paginação.
+        limit (int): Número máximo de registros a retornar.
+
+    Returns:
+        list[Collaborator]: Lista de colaboradores encontrados.
+
+    Raises:
+        HTTPException: 404 se nenhum colaborador for encontrado.
+    """
     collaborators = await engine.find(
         Collaborator,
         {"email": {"$regex": f"{email}", "$options": "i"}},
@@ -52,6 +76,18 @@ async def find_collaborator_by_email(
             response_model=Collaborator,
             status_code=status.HTTP_200_OK)
 async def find_by_id(collaborator_id: str) -> Collaborator:
+    """
+    Busca um colaborador pelo ID.
+
+    Args:
+        collaborator_id (str): ID do colaborador.
+
+    Returns:
+        Collaborator: Objeto do colaborador encontrado.
+
+    Raises:
+        HTTPException: 404 se o colaborador não for encontrado.
+    """
     collaborator = await engine.find_one(
         Collaborator, Collaborator.id == ObjectId(collaborator_id)
     )
@@ -71,6 +107,21 @@ async def add_collaborator_in_task(
     project_id: str,
     task_id: str
 ) -> Task:
+    """
+    Adiciona um colaborador a uma tarefa dentro de um projeto.
+
+    Args:
+        collaborator_id (str): ID do colaborador.
+        project_id (str): ID do projeto.
+        task_id (str): ID da tarefa.
+
+    Returns:
+        Task: Objeto da tarefa atualizada.
+
+    Raises:
+        HTTPException: 404 se o projeto, a tarefa ou o colaborador não forem encontrados.
+        HTTPException: 400 se o colaborador já estiver associado à tarefa.
+    """
     project = await engine.find_one(
         Project,
         Project.id == ObjectId(project_id)
@@ -114,6 +165,18 @@ async def add_collaborator_in_task(
              response_model=Collaborator,
              status_code=status.HTTP_201_CREATED)
 async def create(collaborator: Collaborator) -> Collaborator:
+    """
+    Cria um novo colaborador.
+
+    Args:
+        collaborator (Collaborator): Dados do colaborador.
+
+    Returns:
+        Collaborator: Objeto do colaborador criado.
+
+    Raises:
+        HTTPException: 400 se um colaborador com o mesmo email já existir.
+    """
     existing_collaborator = await engine.find_one(
         Collaborator, Collaborator.email == collaborator.email
     )
@@ -131,6 +194,19 @@ async def create(collaborator: Collaborator) -> Collaborator:
             status_code=status.HTTP_200_OK)
 async def update(collaborator_id: str,
                  collaborator_data: Collaborator) -> Collaborator:
+    """
+    Atualiza um colaborador pelo ID.
+
+    Args:
+        collaborator_id (str): ID do colaborador.
+        collaborator_data (Collaborator): Dados atualizados.
+
+    Returns:
+        Collaborator: Objeto do colaborador atualizado.
+
+    Raises:
+        HTTPException: 404 se o colaborador não for encontrado.
+    """
     collaborator = await engine.find_one(
         Collaborator, Collaborator.id == ObjectId(collaborator_id)
         )
@@ -146,6 +222,18 @@ async def update(collaborator_id: str,
 @router.delete("/{collaborator_id}",
                status_code=status.HTTP_204_NO_CONTENT)
 async def delete(collaborator_id: str) -> None:
+    """
+    Remove um colaborador pelo ID.
+
+    Args:
+        collaborator_id (str): ID do colaborador.
+
+    Returns:
+        None
+
+    Raises:
+        HTTPException: 404 se o colaborador não for encontrado.
+    """
     collaborator = await engine.find_one(
         Collaborator, Collaborator.id == ObjectId(collaborator_id)
         )
