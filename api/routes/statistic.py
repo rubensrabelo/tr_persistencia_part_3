@@ -58,7 +58,7 @@ async def total_tasks_by_collaborator() -> list[dict]:
 
     pipeline = [
         {
-            "$unwind": "$tasks"        
+            "$unwind": "$tasks"
         },
         {
             "$unwind": "$tasks.collaborators"
@@ -80,7 +80,7 @@ async def total_tasks_by_collaborator() -> list[dict]:
                     "name": "$collaborator_info.name",
                     "email": "$collaborator_info.email"
                 },
-                "total_tasks": {"$count": {}}
+                "total_tasks": {"$sum": 1}
             }
         },
         {
