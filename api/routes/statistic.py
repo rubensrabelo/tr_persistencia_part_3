@@ -19,8 +19,10 @@ async def total_projects() -> dict:
     }
 
 
-@router.get("/total/tasks/by/project")
-async def total_tasks_by_project():
+@router.get("/total/tasks/by/project",
+            response_model=dict,
+            status_code=status.HTTP_200_OK)
+async def total_tasks_by_project() -> dict:
     collection = engine.get_collection(Project)
 
     pipeline = [
@@ -45,4 +47,56 @@ async def total_tasks_by_project():
         }
         for result in results
     ]
+    return results
+
+
+@router.get("/total/tasks/collaborator",
+            response_model=list[dict],
+            status_code=status.HTTP_200_OK)
+async def total_tasks_by_collaborator() -> list[dict]:
+    collection = engine.get_collection(Project)
+
+    pipeline = [
+        {
+            "$unwind": "$tasks"        
+        },
+        {
+            "$unwind": "$tasks.collaborators"
+        },
+        {
+            "$lookup": {
+                "from": "collaborator",
+                "localField": "tasks.collaborators.email",
+                "foreignField": "email",
+                "as": "collaborator_info"
+            }
+        },
+        {
+            "$unwind": "$collaborator_info"
+        },
+        {
+            "$group": {
+                "_id": {
+                    "name": "$collaborator_info.name",
+                    "email": "$collaborator_info.email"
+                },
+                "total_tasks": {"$count": {}}
+            }
+        },
+        {
+            "$project": {
+                "_id": 0,
+                "collaborator_name": "$_id.name",
+                "collaborator_email": "$_id.email",
+                "total_tasks": 1
+            }
+        },
+        {
+            "$sort": {
+                "total_tasks": -1
+            }
+        }
+    ]
+
+    results = await collection.aggregate(pipeline).to_list(length=None)
     return results
