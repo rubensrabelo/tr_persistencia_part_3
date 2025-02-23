@@ -18,6 +18,19 @@ async def find_by_id(
     task_id: str,
     project_id: str
 ) -> Task:
+    """
+    Busca uma tarefa específica dentro de um projeto.
+
+    Args:
+        task_id (str): ID da tarefa.
+        project_id (str): ID do projeto ao qual a tarefa pertence.
+
+    Returns:
+        Task: Objeto da tarefa encontrada.
+
+    Raises:
+        HTTPException: 404 se o projeto ou a tarefa não forem encontrados.
+    """
     project = await engine.find_one(
         Project,
         Project.id == ObjectId(project_id)
@@ -49,6 +62,19 @@ async def create(
     project_id: str,
     task: Task
 ) -> Project:
+    """
+    Adiciona uma nova tarefa a um projeto.
+
+    Args:
+        project_id (str): ID do projeto onde a tarefa será adicionada.
+        task (Task): Objeto da nova tarefa a ser criada.
+
+    Returns:
+        Project: Objeto do projeto atualizado com a nova tarefa.
+
+    Raises:
+        HTTPException: 404 se o projeto não for encontrado.
+    """
     project = await engine.find_one(
         Project, Project.id == ObjectId(project_id)
         )
@@ -67,7 +93,21 @@ async def update(
     task_id: str,
     project_id: str,
     task_data: Task
-):
+) -> Project:
+    """
+    Atualiza os detalhes de uma tarefa dentro de um projeto.
+
+    Args:
+        task_id (str): ID da tarefa a ser atualizada.
+        project_id (str): ID do projeto ao qual a tarefa pertence.
+        task_data (Task): Dados atualizados da tarefa.
+
+    Returns:
+        Project: Objeto do projeto atualizado.
+
+    Raises:
+        HTTPException: 404 se o projeto ou a tarefa não forem encontrados.
+    """
     project = await engine.find_one(
         Project, Project.id == ObjectId(project_id)
     )
@@ -97,6 +137,19 @@ async def delete(
     task_id: str,
     project_id: str
 ) -> None:
+    """
+    Remove uma tarefa de um projeto.
+
+    Args:
+        task_id (str): ID da tarefa a ser removida.
+        project_id (str): ID do projeto ao qual a tarefa pertence.
+
+    Returns:
+        None
+
+    Raises:
+        HTTPException: 404 se o projeto não for encontrado.
+    """
     project = await engine.find_one(
         Project,
         Project.id == ObjectId(project_id)
