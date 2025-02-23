@@ -12,6 +12,15 @@ engine = get_engine()
             response_model=dict,
             status_code=status.HTTP_200_OK)
 async def total_projects() -> dict:
+    """
+    Obtém o número total de projetos cadastrados no banco de dados.
+
+    Returns:
+        dict: Um dicionário contendo o total de projetos no formato:
+        {
+            "total_projects": int
+        }
+    """
     total_projects = await engine.count(Project)
     return {"total_projects": total_projects}
 
@@ -25,6 +34,18 @@ async def total_tasks_by_project(
     limit: int = Query(10),
     skip: int = Query(0)
 ) -> list[dict]:
+    """
+    Retorna o número total de tarefas dentro de cada projeto.
+
+    Args:
+        min_tasks (int, opcional): Número mínimo de tarefas por projeto. Default = 0.
+        max_tasks (int, opcional): Número máximo de tarefas por projeto.
+        limit (int, opcional): Número máximo de projetos retornados. Default = 10.
+        skip (int, opcional): Número de projetos a serem ignorados no início da lista. Default = 0.
+
+    Returns:
+        list[dict]: Lista de dicionários contendo o nome do projeto e o total de tarefas.
+    """
     collection = engine.get_collection(Project)
 
     pipeline = [
@@ -58,6 +79,22 @@ async def total_collaborators_by_task(
     limit: int = Query(10),
     skip: int = Query(0)
 ) -> list[dict]:
+    """
+    Obtém a quantidade de colaboradores por tarefa dentro de um projeto específico.
+
+    Args:
+        project_id (str): ID do projeto cujas tarefas serão analisadas.
+        min_collaborators (int, opcional): Número mínimo de colaboradores por tarefa. Default = 0.
+        max_collaborators (int, opcional): Número máximo de colaboradores por tarefa.
+        limit (int, opcional): Número máximo de resultados retornados. Default = 10.
+        skip (int, opcional): Número de tarefas a serem ignoradas no início da lista. Default = 0.
+
+    Returns:
+        list[dict]: Lista de dicionários contendo o ID da tarefa, nome da tarefa e total de colaboradores.
+
+    Raises:
+        HTTPException: 404 se o projeto não for encontrado.
+    """
     collection = engine.get_collection(Project)
 
     project = await engine.find_one(
@@ -106,6 +143,18 @@ async def total_tasks_by_collaborator(
     limit: int = Query(10),
     skip: int = Query(0)
 ) -> list[dict]:
+    """
+    Obtém o número total de tarefas atribuídas a cada colaborador.
+
+    Args:
+        min_tasks (int, opcional): Número mínimo de tarefas por colaborador. Default = 0.
+        max_tasks (int, opcional): Número máximo de tarefas por colaborador.
+        limit (int, opcional): Número máximo de resultados retornados. Default = 10.
+        skip (int, opcional): Número de colaboradores a serem ignorados no início da lista. Default = 0.
+
+    Returns:
+        list[dict]: Lista de dicionários contendo o nome do colaborador, e-mail e total de tarefas.
+    """
     collection = engine.get_collection(Project)
 
     pipeline = [
