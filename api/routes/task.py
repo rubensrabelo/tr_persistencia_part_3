@@ -154,15 +154,21 @@ async def delete(
         Project,
         Project.id == ObjectId(project_id)
     )
+
     if not project:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Project not found"
         )
-    project.tasks = [
-        task
-        for task in project.tasks
-        if task.id != ObjectId(task_id)
-    ]
+
+    new_tasks = list(filter(lambda task: task.id != ObjectId(task_id), project.tasks))
+
+    if len(new_tasks) == len(project.tasks):
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Task not found in project"
+        )
+
+    project.tasks = new_tasks
     await engine.save(project)
     return
