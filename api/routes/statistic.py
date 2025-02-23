@@ -21,8 +21,8 @@ async def total_projects() -> dict:
 async def total_tasks_by_project(
     min_tasks: int = Query(0, alias="min"),
     max_tasks: int = Query(None, alias="max"),
-    limit: int = Query(10, alias="limit"),
-    skip: int = Query(0, alias="skip")
+    limit: int = Query(10),
+    skip: int = Query(0)
 ) -> list[dict]:
     collection = engine.get_collection(Project)
 
@@ -53,8 +53,8 @@ async def total_tasks_by_project(
 async def total_collaborators_by_task(
     min_collaborators: int = Query(0, alias="min"),
     max_collaborators: int = Query(None, alias="max"),
-    limit: int = Query(10, alias="limit"),
-    skip: int = Query(0, alias="skip")
+    limit: int = Query(10),
+    skip: int = Query(0)
 ) -> list[dict]:
     collection = engine.get_collection(Project)
 
@@ -91,8 +91,8 @@ async def total_collaborators_by_task(
 async def total_tasks_by_collaborator(
     min_tasks: int = Query(0, alias="min"),
     max_tasks: int = Query(None, alias="max"),
-    limit: int = Query(10, alias="limit"),
-    skip: int = Query(0, alias="skip")
+    limit: int = Query(10),
+    skip: int = Query(0)
 ) -> list[dict]:
     collection = engine.get_collection(Project)
 
